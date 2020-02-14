@@ -12,13 +12,15 @@ class Cell:
         self.reads_no_umi = 0
         self.uniquely_mapped_reads = 0
         self.reads_passing_filters = 0
-        self.chromosome_read_counts = dict() # chrom -> count
-
-    def record_alignment(self, read, GENE_TAG, UMI_TAG):
+        self.chromosome_read_counts = dict()
+        self.GENE_TAG = GENE_TAG
+        self.UMI_TAG = UMI_TAG
+	
+    def record_alignment(self, read):
         self.total_reads += 1
-        if not read.has_tag(GENE_TAG):
+        if not read.has_tag(self.GENE_TAG):
              self.reads_no_gene += 1
-        if not read.has_tag(UMI_TAG):
+        if not read.has_tag(self.UMI_TAG):
             self.reads_no_umi += 1
         if read.mapping_quality == 255:
             self.uniquely_mapped_reads += 1
@@ -26,10 +28,10 @@ class Cell:
             if chrom not in self.chromosome_read_counts:
                 self.chromosome_read_counts[chrom] = 0
             self.chromosome_read_counts[chrom] += 1
-            if read.has_tag(UMI_TAG) and read.has_tag(GENE_TAG) and not read.is_secondary:
+            if read.has_tag(self.UMI_TAG) and read.has_tag(self.GENE_TAG) and not read.is_secondary:
                 self.reads_passing_filters += 1
-                umi = read.get_tag(UMI_TAG)
-                gene = read.get_tag(GENE_TAG)
+                umi = read.get_tag(self.UMI_TAG)
+                gene = read.get_tag(self.GENE_TAG)
                 if umi not in self.umis:
                     self.umis[umi] = dict()
                 if gene not in self.umis[umi]:
